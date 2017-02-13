@@ -1,16 +1,19 @@
 function check_login(){
-if (!empty($_SESSION)){
+if (isset($_SESSION['password'])){
 if($_SESSION['password']==md5($password)){
 $_SESSION['login']=TRUE;
 }else{
 $_SESSION['login']=FALSE;
-}if(!$_SESSION['login']){
+}
+if($_SESSION['login']!=TRUE){
 get_login();
 die();
-}}else{
+}
+}else{
 get_login();
 die();
-}return $_SESSION['login'];}
+}
+}
 
 function get_login(){
 echo '<form method=POST><input type="password" name="passwd" /><input type="submit" value="Login" /></form>';
