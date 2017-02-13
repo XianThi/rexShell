@@ -10,7 +10,7 @@ die();
 }}else{
 get_login();
 die();
-}}
+}return $_SESSION['login'];}
 
 function get_login(){
 echo '<form method=POST><input type="password" name="passwd" /><input type="submit" value="Login" /></form>';
