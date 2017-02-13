@@ -1,10 +1,10 @@
 function check_login(){
 if (!empty($_SESSION)){
 if($_SESSION['password']==md5($password)){
-$login=TRUE;
+$_SESSION['login']=TRUE;
 }else{
-$login=FALSE;
-}if(!$login){
+$_SESSION['login']=FALSE;
+}if(!$_SESSION['login']){
 get_login();
 die();
 }}else{
