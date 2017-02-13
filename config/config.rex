@@ -1,4 +1,4 @@
 function set_password($test){
-$password="xianthi";
-return $password;
+$this->password="xianthi";
+return TRUE;
 }
