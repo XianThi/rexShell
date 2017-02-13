@@ -4,14 +4,12 @@ $passwd=$_POST['passwd'];
 if($passwd == $password){
 $_SESSION["password"]=md5($passwd);
 $_SESSION["rexlog"]=TRUE;
-echo"burda";
 }}else{
 if (isset($_SESSION['password'])){
-if($_SESSION['password']==md5($password)){
+if($_SESSION['password']===md5($password)){
 $_SESSION["rexlog"]=TRUE;
 }else{
 $_SESSION["rexlog"]=FALSE;
-echo "ve burda";
 }
 if($_SESSION["rexlog"]!=TRUE){
 get_login();
