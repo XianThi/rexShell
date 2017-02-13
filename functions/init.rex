@@ -1,4 +1,4 @@
-function check_login(){
+function check_login($password){
 if(isset($_POST['passwd'])){
 $passwd=$_POST['passwd'];
 if($passwd == $password){
