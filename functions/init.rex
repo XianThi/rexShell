@@ -2,16 +2,16 @@ function check_login(){
 if(isset($_POST['passwd'])){
 $passwd=$_POST['passwd'];
 if($passwd == $password){
-$_SESSION['password']=md5($passwd);
-$_SESSION['login']=TRUE;
+$_SESSION["password"]=md5($passwd);
+$_SESSION["rexlog"]=TRUE;
 }}else{
 if (isset($_SESSION['password'])){
 if($_SESSION['password']==md5($password)){
-$_SESSION['login']=TRUE;
+$_SESSION["rexlog"]=TRUE;
 }else{
-$_SESSION['login']=FALSE;
+$_SESSION["rexlog"]=FALSE;
 }
-if($_SESSION['login']!=TRUE){
+if($_SESSION["rexlog"]!=TRUE){
 get_login();
 die();
 }
