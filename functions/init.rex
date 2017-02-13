@@ -27,6 +27,7 @@ echo '<form method=POST><input type="password" name="passwd" /><input type="subm
 
 function logout(){
 unset($_SESSION["password"]);
+unset($_SESSION["rexlog"]);
 session_destroy();
 header('Location: ?login');
 }
