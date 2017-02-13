@@ -1,2 +1,2 @@
-$rex->password="xianthi";
+$password="xianthi";
 
