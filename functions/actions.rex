@@ -38,6 +38,20 @@ $alert_message="Dosya oluşturulamadı.";
 }
 }
 
+if(isset($_POST["new_folder"])){
+if(create_folder($_POST["newfolder"])){
+$alert_display=TRUE;
+$alert_style="success";
+$alert_message="Klasör oluşturuldu.";
+$location='?path='.$_GET["path"];
+header("Location: $location");
+}else{
+$alert_display=TRUE;
+$alert_style="danger";
+$alert_message="Klasör oluşturulamadı.";    
+}
+}
+
 if(isset($_POST["uploadfile"])){
 if(isset($_POST["zip"])){
 $zip=TRUE;
