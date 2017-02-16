@@ -79,3 +79,11 @@ $alert_style="danger";
 $alert_message="Silinemedi.";    
 }
 }
+
+if(isset($_GET["download"])){
+return download_file($_GET['download'],FALSE);
+}
+
+if(isset($_GET["downloadgz"])){
+return download_file($_GET['download'],TRUE);
+}
