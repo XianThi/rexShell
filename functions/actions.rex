@@ -85,5 +85,5 @@ return download_file($_GET['download'],FALSE);
 }
 
 if(isset($_GET["downloadgz"])){
-return download_file($_GET['download'],TRUE);
+return download_file($_GET['downloadgz'],TRUE);
 }
