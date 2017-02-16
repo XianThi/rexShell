@@ -69,7 +69,7 @@ $alert_message="Dosya yüklenemedi.";
 }
 }
 if(isset($_GET["delete"])){
-if(delete_file($_GET["delete"])){
+if(delete_file($_GET['delete'])){
 $alert_display=TRUE;
 $alert_style="success";
 $alert_message="Silindi.";
