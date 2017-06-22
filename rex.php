@@ -5,7 +5,7 @@ session_start();
 function get_content_from_github($url) {
     //$proxy="proxy.adress:80";
     //$auth="user:pass";    
-	$token = 'ZGE2YjA0MjA1ZGYzZTJlZjlmMGY3YzY1ZTBmYjU4MTI5Y2QwMwQ2Nw==';
+	$token = 'Nzc3YTQ2YTRkMzJhNDExMDk3M2Q1YTY0M2RlMWE2MjY5MWE5MjllMg==';
     	$curl_token_auth = 'Authorization: token ' . base64_decode($token);
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,$url);
