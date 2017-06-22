@@ -4,9 +4,9 @@ error_reporting(E_ALL);
 session_start();
 function get_content_from_github($url) {
     //$proxy="proxy.adress:80";
-    //$auth="user:pass";
-    $token = '067b42ec088a88d2639c9ac7ffa16bc30f990415';
-    $curl_token_auth = 'Authorization: token ' . $token;
+    //$auth="user:pass";    
+	$token = 'ZGE2YjA0MjA1ZGYzZTJlZjlmMGY3YzY1ZTBmYjU4MTI5Y2QwMwQ2Nw==';
+    	$curl_token_auth = 'Authorization: token ' . base64_decode($token);
 	$ch = curl_init();
 	curl_setopt($ch,CURLOPT_URL,$url);
     //curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
